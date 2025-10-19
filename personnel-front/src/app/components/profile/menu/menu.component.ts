@@ -1,8 +1,11 @@
-import { Component } from '@angular/core';
+//component/profile/menu/menu.component.ts
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
 import { MenuItem } from 'primeng/api';
+import { AuthService } from '../../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-menu',
@@ -11,6 +14,9 @@ import { MenuItem } from 'primeng/api';
     templateUrl: './menu.component.html'
 })
 export class MenuComponent {
+    private authService = inject(AuthService);
+    private router = inject(Router);
+
     items: MenuItem[] = [
         {
             label: 'Changer le mot de passe',
@@ -26,14 +32,12 @@ export class MenuComponent {
 
 
     onChangePassword() {
-        // TODO: implement password change navigation
-        console.log('Naviguer vers changement de mot de passe');
+        this.router.navigate(['/change-password']);
     }
 
 
     onLogout() {
-        // TODO: implement logout logic
-        console.log('Déconnexion');
+        this.authService.logout();
     }
 
 }

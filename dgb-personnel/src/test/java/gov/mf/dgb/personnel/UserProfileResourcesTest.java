@@ -42,6 +42,16 @@ public class UserProfileResourcesTest {
         .extract()
         .asString();
   }
+  @Test
+  void testCorsPreflight() {
+  given()
+      .header("Origin", "http://localhost:4200")
+      .header("Access-Control-Request-Method", "POST")
+      .when()
+      .options("/api/users/login")
+      .then()
+      .statusCode(200);
+}
 
   @Test
   void test_privilege_token() {

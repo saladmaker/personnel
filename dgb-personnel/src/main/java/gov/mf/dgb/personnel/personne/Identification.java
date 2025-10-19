@@ -11,6 +11,7 @@ import java.time.LocalDate;
 
 @Embeddable
 public record Identification(
+
         @Column(name = "numero_identification_national", nullable = false, unique = true)
         String nin,
 
@@ -34,7 +35,7 @@ public record Identification(
 
         @Column(name = "date_naissance_presume", nullable = false)
         boolean dateDeNaissancePresum,
-
+        
         @ManyToOne
         @JoinColumn(name = "commune_naissance_id")
         Commune communeDeNaissance,
@@ -45,6 +46,9 @@ public record Identification(
 
         @Column(name = "pays_naissance", nullable = false)
         String paysDeNaissance,
+
+        @Column(name = "lieu_naissance")
+        String lieuDeNaissance,
 
         @Column(name = "numero_extrait_naissance", nullable = false)
         String numeroDeExtraitNaissance

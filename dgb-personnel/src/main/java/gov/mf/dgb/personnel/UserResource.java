@@ -37,29 +37,32 @@ public class UserResource {
     public Response login(LoginRequest request) {
 
         var optUser = repo.findUserWithRolesByEmail(request.email());
+
         if (optUser.isPresent()) {
+
             var user = optUser.get();
             if (user.checkPassword(request.password())) {
-                return Response.ok(generateToken(user)).build();
+
+                return Response.ok(generateToken(user, duration)).build();
             }
         }
         return Response.status(Response.Status.UNAUTHORIZED).build();
 
     }
-    
+
     @RolesAllowed("ADMIN")
     @POST
     @Path("create")
-    public Response create(@Valid LoginCreateRequest request){
+    public Response create(@Valid LoginCreateRequest request) {
         var optUser = repo.findUserWithRolesByEmail(request.email());
-        if(optUser.isEmpty()){
+        if (optUser.isEmpty()) {
             return Response.status(Response.Status.CREATED).build();
-        }else{
+        } else {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
     }
 
-    static String generateToken(User user) {
+    static String generateToken(User user, Duration duration) {
         return Jwt.issuer("http://localhost:8080")
                 .audience("http://localhost:8080")
                 .subject(user.getEmail())
@@ -68,9 +71,8 @@ public class UserResource {
                         .map(Role::name)
                         .map(String::toLowerCase)
                         .collect(Collectors.toSet()))
-                .expiresIn(Duration.ofHours(1))
+                .expiresIn(duration)
                 .sign();
     }
 
-    
 }

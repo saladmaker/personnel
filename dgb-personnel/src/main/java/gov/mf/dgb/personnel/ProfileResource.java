@@ -22,7 +22,7 @@ public class ProfileResource {
     @Inject
     JsonWebToken token;
 
-    @RolesAllowed({"user", "admin"})
+    @RolesAllowed({"user"})
     @Path("updatePassword")
     @POST
     public Response updatePassword(@Valid PasswordChangeRequest request){
@@ -41,6 +41,5 @@ public class ProfileResource {
         }
         return Response.status(Response.Status.UNAUTHORIZED).build();
     }
-
 
 }

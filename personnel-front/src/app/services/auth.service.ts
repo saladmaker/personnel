@@ -1,5 +1,4 @@
-// src/app/services/auth.service.ts
-
+//src/service/auth.service.ts
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
@@ -9,100 +8,105 @@ import { tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-
-  // Stores the JWT in memory.
-  token = signal<string | null>(null);
-
-  // Use functional inject() inside the service
-  private jwt = inject(JwtHelperService);
   private http = inject(HttpClient);
+  private jwt = inject(JwtHelperService);
   private router = inject(Router);
 
   private apiUrl = 'http://localhost:8080/api';
-  private expirationTimer: any; // To hold the timeout reference
+  private expirationTimer: any;
 
-  // --- Computed Properties ---
+  // --- Signals ---
+  private _token = signal<string | null>(localStorage.getItem('jwt_token'));
+
+  // --- Computed properties ---
+  token = computed(() => this._token());
 
   isAuthenticated = computed(() => {
-    const t = this.token();
-    // Use the library's check for expiration
+    const t = this._token();
     return !!t && !this.jwt.isTokenExpired(t);
   });
 
-  // SmallRye JWT uses the 'groups' claim for roles/groups by standard.
   groups = computed<string[]>(() => {
-    const t = this.token();
+    const t = this._token();
     if (!t) return [];
     try {
-        const decoded = this.jwt.decodeToken(t);
-        // Ensure it returns an array, defaulting to an empty array
-        const groups = decoded?.['groups'];
-        return Array.isArray(groups) ? groups : (groups ? [groups] : []);
-    } catch (e) {
-        return [];
+      const decoded = this.jwt.decodeToken(t);
+      const groups = decoded?.['groups'];
+      return Array.isArray(groups) ? groups : (groups ? [groups] : []);
+    } catch {
+      return [];
     }
   });
 
   // --- Methods ---
-
   hasGroup(requiredGroup: string): boolean {
     return this.groups().includes(requiredGroup);
   }
 
   hasAnyGroup(requiredGroups: string[]): boolean {
-    return requiredGroups.some(group => this.groups().includes(group));
+    return requiredGroups.some(g => this.groups().includes(g));
   }
-  
-  // Refactored login method
-  login(request: LoginRequest) {
-    // 1. Clear any existing timer before a new login attempt
-    clearTimeout(this.expirationTimer);
 
-    return this.http.post<string>(`${this.apiUrl}/login`, request, {
+  login(request: LoginRequest) {
+    clearTimeout(this.expirationTimer);
+    return this.http.post<string>(`${this.apiUrl}/users/login`, request, {
       responseType: 'text' as 'json'
     }).pipe(
-      tap((token: string) => {
-        this.token.set(token);
+      tap(token => {
+        this.setToken(token);
         this.scheduleTokenExpiry(token);
-        this.router.navigate(['/profile'])
+        this.router.navigate(['/profile']);
       })
     );
   }
 
   logout() {
-    this.token.set(null);
-    clearTimeout(this.expirationTimer); // Clear the timer on explicit logout
+    this._token.set(null);
+    localStorage.removeItem('jwt_token');
+    clearTimeout(this.expirationTimer);
     this.router.navigate(['/login']);
   }
 
-  // Extracted logic to manage the token expiration timer
-  private scheduleTokenExpiry(token: string): void {
-    // NOTE: Although the JWT library's isTokenExpired check is reliable, 
-    // using a timer is still the best way to auto-logout the user exactly 
-    // when the token becomes invalid on the client side.
+  private setToken(token: string) {
+    this._token.set(token);
+    localStorage.setItem('jwt_token', token);
+  }
+
+  private scheduleTokenExpiry(token: string) {
     try {
-      // Use the library's method to get the expiration date (more robust than manual parsing)
-      const expirationDate = this.jwt.getTokenExpirationDate(token);
-      
-      if (!expirationDate) {
-        console.warn('JWT token has no expiration date (exp claim). Auto-logout disabled.');
+      const decoded = this.jwt.decodeToken(token);
+      const expClaim = decoded?.exp;
+      console.log('[JWT DEBUG] Raw exp claim:', expClaim);
+
+      const expDate = this.jwt.getTokenExpirationDate(token);
+      console.log('[JWT DEBUG] Expiration date:', expDate?.toISOString());
+      console.log('[JWT DEBUG] Current date:', new Date().toISOString());
+
+      if (!expDate) {
+        console.warn('[JWT DEBUG] No expiration date detected.');
         return;
       }
 
-      const msUntilExpiry = expirationDate.getTime() - Date.now();
-      
+      const msUntilExpiry = expDate.getTime() - Date.now();
+      console.log('[JWT DEBUG] msUntilExpiry:', msUntilExpiry);
+
       if (msUntilExpiry > 0) {
-        console.log(`Scheduling logout in ${Math.round(msUntilExpiry / 1000)} seconds.`);
-        // Set the timer to call logout()
-        this.expirationTimer = setTimeout(() => this.logout(), msUntilExpiry);
+        clearTimeout(this.expirationTimer);
+        this.expirationTimer = setTimeout(() => {
+          console.log('[JWT DEBUG] Token expired — clearing.');
+          this._token.set(null);
+          localStorage.removeItem('jwt_token');
+          this.router.navigate(['/login']);
+        }, msUntilExpiry);
       } else {
-        // Token is already expired (e.g., system clock issues, token received late)
-        console.warn('Token is already expired. Logging out immediately.');
+        console.warn('[JWT DEBUG] Token already expired — logging out.');
         this.logout();
       }
-    } catch (error) {
-      console.error('Failed to schedule token expiry:', error);
+    } catch (err) {
+      console.error('[JWT DEBUG] scheduleTokenExpiry error:', err);
       this.logout();
     }
   }
+
+
 }
