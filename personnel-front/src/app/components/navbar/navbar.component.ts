@@ -4,16 +4,16 @@ import { CommonModule } from '@angular/common';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
 import { MenuItem } from 'primeng/api';
-import { AuthService } from '../../../services/auth.service';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
-    selector: 'app-menu',
+    selector: 'app-navbar',
     standalone: true,
     imports: [CommonModule, MenuModule, ButtonModule],
-    templateUrl: './menu.component.html'
+    templateUrl: './navbar.component.html'
 })
-export class MenuComponent {
+export class NavbarComponent {
     private authService = inject(AuthService);
     private router = inject(Router);
 
