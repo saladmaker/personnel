@@ -1,7 +1,6 @@
 package gov.mf.dgb.personnel.personne;
 
-import gov.mf.dgb.personnel.Commune;
-import gov.mf.dgb.personnel.Wilaya;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;

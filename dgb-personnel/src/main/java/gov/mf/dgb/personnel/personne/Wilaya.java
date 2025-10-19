@@ -1,4 +1,4 @@
-package gov.mf.dgb.personnel;
+package gov.mf.dgb.personnel.personne;
 
 import java.util.Objects;
 

@@ -13,10 +13,9 @@ public class PasswordValidator implements ConstraintValidator<ValidPassword, Str
 
         boolean hasMinLength = value.length() >= 8;
         boolean hasFourDigits = value.chars().filter(Character::isDigit).count() >= 4;
-        boolean hasSpecialChar = value.matches(".*[!@#$%^&*()_+\\-=[\\]{};':\"\\\\|,.<>/?].*");
+        boolean hasSpecialChar = value.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*");
 
         return hasMinLength && hasFourDigits && hasSpecialChar;
     }
-
 
 }

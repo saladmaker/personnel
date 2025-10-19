@@ -3,8 +3,6 @@ package gov.mf.dgb.personnel.personne;
 import java.util.List;
 import java.util.Optional;
 
-import gov.mf.dgb.personnel.Commune;
-import gov.mf.dgb.personnel.Wilaya;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.Insert;
 import jakarta.data.repository.Query;
@@ -26,8 +24,11 @@ public interface LieuRepo {
     @Find
     Optional<Wilaya> wilaya(String nom);
 
-    @Query("select c.nom from Commune c")
-    List<String> communeNoms();
+    @Query("""
+            select c.nom from Commune c join c.wilaya w
+            where w.nom = :nomWilaya
+            """)
+    List<String> communeNomsByWilaya(String nomWilaya);
 
     @Query("select w.nom from Wilaya w")
     List<String> wilayaNoms();

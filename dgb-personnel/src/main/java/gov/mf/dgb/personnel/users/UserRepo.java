@@ -2,10 +2,9 @@ package gov.mf.dgb.personnel.users;
 
 import java.util.Optional;
 
-import jakarta.data.repository.Find;
+import jakarta.data.repository.Query;
 import jakarta.data.repository.Repository;
 import jakarta.data.repository.Save;
-import jakarta.data.repository.Update;
 
 @Repository
 public interface UserRepo {
@@ -13,10 +12,15 @@ public interface UserRepo {
     @Save
     void save(User user);
 
-    @Update
-    void updateUser(User user);
-
-    @Find
+    @Query("""
+            select u from User u
+            where u.email = :email
+            """)
     Optional<User> findUserByEmail(String email);
 
+    @Query("""
+            select u from User u join fetch u.roles
+            where u.email = :email
+            """)
+    Optional<User> findUserWithRolesByEmail(String email);
 }

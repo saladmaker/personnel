@@ -64,6 +64,7 @@ export class AuthService {
       tap((token: string) => {
         this.token.set(token);
         this.scheduleTokenExpiry(token);
+        this.router.navigate(['/profile'])
       })
     );
   }

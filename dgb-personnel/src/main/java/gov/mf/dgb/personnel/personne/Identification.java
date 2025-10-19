@@ -9,16 +9,19 @@ import jakarta.persistence.ManyToOne;
 
 import java.time.LocalDate;
 
-import gov.mf.dgb.personnel.Commune;
-import gov.mf.dgb.personnel.Wilaya;
-
 @Embeddable
 public record Identification(
+        @Column(name = "numero_identification_national", nullable = false, unique = true)
+        String nin,
+
         @Column(name = "nom", nullable = false)
         String nom,
 
         @Column(name = "prenom", nullable = false)
         String prenom,
+
+        @Column(name = "nom_jeunfils")
+        String jeunfils,
 
         @Enumerated(EnumType.STRING) @Column(name = "sexe", nullable = false)
         Sexe sexe,
