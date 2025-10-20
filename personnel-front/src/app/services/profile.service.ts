@@ -7,7 +7,7 @@ import { PasswordChangeRequest } from '../models/password-change-request.model';
   providedIn: 'root'
 })
 export class ProfileService {
-  private readonly profileApiUrl = '/api/profile'; // matches Quarkus REST path
+  private readonly profileApiUrl = 'http://localhost:8080/api/profile'; // matches Quarkus REST path
 
   constructor(private http: HttpClient) {}
 

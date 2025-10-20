@@ -10,6 +10,7 @@ import gov.mf.dgb.personnel.users.LoginRequest;
 import gov.mf.dgb.personnel.users.Role;
 import gov.mf.dgb.personnel.users.User;
 import gov.mf.dgb.personnel.users.UserRepo;
+import io.quarkus.logging.Log;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
@@ -50,12 +51,16 @@ public class UserResource {
 
     }
 
-    @RolesAllowed("ADMIN")
+    @RolesAllowed("admin")
     @POST
     @Path("create")
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response create(@Valid LoginCreateRequest request) {
-        var optUser = repo.findUserWithRolesByEmail(request.email());
+        var optUser = repo.findUserByEmail(request.email());
         if (optUser.isEmpty()) {
+            Log.info("empty### create");
+            User newUser = new User(request.name(), request.email(), request.password(), request.roles());
+            repo.save(newUser);
             return Response.status(Response.Status.CREATED).build();
         } else {
             return Response.status(Response.Status.BAD_REQUEST).build();

@@ -38,6 +38,46 @@ export class AuthService {
     }
   });
 
+  // New computed properties for token metadata
+  tokenExpiryTime = computed<Date | null>(() => {
+    const t = this._token();
+    if (!t) return null;
+    return this.jwt.getTokenExpirationDate(t);
+  });
+
+  tokenIssuedAt = computed<Date | null>(() => {
+    const t = this._token();
+    if (!t) return null;
+    try {
+      const decoded = this.jwt.decodeToken(t);
+      return decoded?.iat ? new Date(decoded.iat * 1000) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  tokenSubject = computed<string | null>(() => {
+    const t = this._token();
+    if (!t) return null;
+    try {
+      const decoded = this.jwt.decodeToken(t);
+      return decoded?.sub || null;
+    } catch {
+      return null;
+    }
+  });
+
+  tokenIssuer = computed<string | null>(() => {
+    const t = this._token();
+    if (!t) return null;
+    try {
+      const decoded = this.jwt.decodeToken(t);
+      return decoded?.iss || null;
+    } catch {
+      return null;
+    }
+  });
+
   // --- Methods ---
   hasGroup(requiredGroup: string): boolean {
     return this.groups().includes(requiredGroup);
@@ -75,38 +115,27 @@ export class AuthService {
   private scheduleTokenExpiry(token: string) {
     try {
       const decoded = this.jwt.decodeToken(token);
-      const expClaim = decoded?.exp;
-      console.log('[JWT DEBUG] Raw exp claim:', expClaim);
-
       const expDate = this.jwt.getTokenExpirationDate(token);
-      console.log('[JWT DEBUG] Expiration date:', expDate?.toISOString());
-      console.log('[JWT DEBUG] Current date:', new Date().toISOString());
 
       if (!expDate) {
-        console.warn('[JWT DEBUG] No expiration date detected.');
         return;
       }
 
       const msUntilExpiry = expDate.getTime() - Date.now();
-      console.log('[JWT DEBUG] msUntilExpiry:', msUntilExpiry);
 
       if (msUntilExpiry > 0) {
         clearTimeout(this.expirationTimer);
         this.expirationTimer = setTimeout(() => {
-          console.log('[JWT DEBUG] Token expired — clearing.');
           this._token.set(null);
           localStorage.removeItem('jwt_token');
           this.router.navigate(['/login']);
         }, msUntilExpiry);
       } else {
-        console.warn('[JWT DEBUG] Token already expired — logging out.');
         this.logout();
       }
     } catch (err) {
-      console.error('[JWT DEBUG] scheduleTokenExpiry error:', err);
+      console.error('scheduleTokenExpiry error:', err);
       this.logout();
     }
   }
-
-
 }

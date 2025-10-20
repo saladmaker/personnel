@@ -15,9 +15,9 @@ import jakarta.transaction.Transactional;
 @Transactional
 public class RegisterDefaultUser {
     
-    User UNPRIVILEGED_USER = new User("abdou", "abdou@mf.dz", "1990", Set.of(Role.USER));
-    User PRIVILEGED_USER = new User("khaled", "khaled@mf.dz", "1994", Set.of(Role.ADMIN, Role.USER));
-    User CHANGE_PASSWORD_USER = new User("ahmed", "ahmed@mf.dz", "1990", Set.of(Role.USER));
+    static final User UNPRIVILEGED_USER = new User("abdou", "abdou@mf.dz", "1990", Set.of(Role.USER));
+    static final User PRIVILEGED_USER = new User("khaled", "khaled@mf.dz", "1994", Set.of(Role.ADMIN, Role.USER));
+    static final User CHANGE_PASSWORD_USER = new User("ahmed", "ahmed@mf.dz", "1990", Set.of(Role.USER));
 
     @Inject
     UserRepo repo;

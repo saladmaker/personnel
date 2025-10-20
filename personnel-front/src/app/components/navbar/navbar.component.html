@@ -1,6 +1,23 @@
-<div class="relative flex items-center justify-end p-2">
-    <p-menu #menu [popup]="true" [model]="items"></p-menu>
-    <button pButton type="button" icon="pi pi-user" label="Profil"
-        class="p-button-text rounded-2xl shadow-md bg-gray-100 hover:bg-gray-200 text-gray-800"
-        (click)="menu.toggle($event)"></button>
+<div class="flex items-center justify-end gap-4 p-2">
+  <!-- Create User button (visible only for admins) -->
+  <button
+    *ngIf="auth.hasAnyGroup(['admin'])"
+    pButton
+    type="button"
+    icon="pi pi-user-plus"
+    label="Create User"
+    class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 hover:border-gray-400 rounded-lg px-3 py-2 text-sm font-medium transition shadow-sm"
+    routerLink="/create-user"
+  ></button>
+
+  <!-- Profile button -->
+  <p-menu #menu [popup]="true" [model]="items"></p-menu>
+  <button
+    pButton
+    type="button"
+    icon="pi pi-user"
+    label="Profil"
+    class="p-button-text rounded-2xl shadow bg-gray-100 hover:bg-gray-200 text-gray-800"
+    (click)="menu.toggle($event)"
+  ></button>
 </div>

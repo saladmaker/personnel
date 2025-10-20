@@ -3,6 +3,8 @@ package gov.mf.dgb.personnel.personne;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.hibernate.annotations.EmbeddedColumnNaming;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -19,6 +21,9 @@ public class Structure {
 
     @Column(name = "structure_nom", nullable = false, unique = true)
     String nom;
+
+    @EmbeddedColumnNaming("structure_adresse_%s")
+    Adresse adresse;
 
     @OneToMany
     @JoinTable(

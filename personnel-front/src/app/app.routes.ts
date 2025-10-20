@@ -4,6 +4,7 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
 import { groupGuard } from './guards/auth-group.guard';
 import { MainLayoutComponent } from './main-layout.component';
+import { UserCreateComponent } from './components/users/user-create.component';
 
 export const routes: Routes = [
   {
@@ -24,6 +25,11 @@ export const routes: Routes = [
         path: 'change-password',
         component: ChangePasswordComponent,
         data: { groups: ['user'] }
+      },
+      {
+        path: 'create-user',
+        component: UserCreateComponent,
+        data: { groups: ['admin'] }
       },
       { path: '', redirectTo: 'profile', pathMatch: 'full' }
     ]
